@@ -1,0 +1,109 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## Kasutusjuhend
+
+Iga hall kast (`{r}` ja selle sees olev kood) on **koodilahter**. Selle käivitamiseks vajuta:
+
+-   **Vajuta hiirega** kord ploki sisse (et kursor oleks selle sees),
+
+-   Siis vajuta **Ctrl + Enter** (Windows) või **Cmd + Enter** (Mac),
+
+-   Või kliki ploki paremas ülanurgas “Run” nupul → “Run Current Chunk”
+
+```{r}
+install.packages("Rtsne")
+install.packages("ggplot2")
+install.packages("data.table")
+install.packages("data.table")
+```
+
+```{r}
+# Lae andmed
+library(Rtsne)
+library(ggplot2)
+library(data.table)
+library(readr)
+library(dplyr)
+```
+
+```{r}
+df_notes <- read_csv("graph_embeddings_notes_umap.csv")
+
+ggplot(df_notes, aes(x = umap_X, y = umap_Y, color = as.factor(cluster))) +
+  geom_point(alpha = 0.6, size = 1) +
+  theme_minimal() +
+  labs(title = "UMAP Notes Clustering", color = "Cluster")
+
+```
+
+```{r}
+df_raters <- read_csv("graph_embeddings_raters_umap.csv")
+
+ggplot(df_raters, aes(x = umap_X, y = umap_Y, color = as.factor(cluster))) +
+  geom_point(alpha = 0.6, size = 1) +
+  theme_minimal() +
+  labs(
+    title = "UMAP Raters Clustering (Community Note Contributors)",
+    color = "Cluster"
+  )
+```
+
+```{r}
+df_notes <- read_csv("graph_embeddings_notes_umap.csv") %>%
+  mutate(type = "note")
+
+df_raters <- read_csv("graph_embeddings_raters_umap.csv") %>%
+  mutate(type = "rater")
+
+combined <- bind_rows(
+  df_notes %>% select(umap_X, umap_Y, cluster, type),
+  df_raters %>% select(umap_X, umap_Y, cluster, type)
+)
+
+ggplot(combined, aes(x = umap_X, y = umap_Y, color = as.factor(cluster), shape = type)) +
+  geom_point(alpha = 0.6, size = 1) +
+  theme_minimal() +
+  labs(
+    title = "UMAP Combined Clustering: Notes and Raters",
+    color = "Cluster",
+    shape = "Type"
+  )
+```
+
+```{r}
+library(tidyverse)
+library(igraph)
+library(ggraph)
+
+edges <- read_csv("cluster_edges.csv")
+nodes <- read_csv("cluster_nodes.csv")
+
+# Logaritmiliselt skaleeritud sõlmesuurus
+nodes <- nodes %>%
+  mutate(size_log = log1p(size))
+
+# Eemalda ekstreemsed sõlmed (võib ka ainult R_0 või R_9, või mõlemad)
+outliers <- c("R_0", "R_9")
+nodes_filtered <- nodes %>% filter(!id %in% outliers)
+edges_filtered <- edges %>% filter(!source %in% outliers & !target %in% outliers)
+
+# Graaf
+graph <- graph_from_data_frame(d = edges_filtered, vertices = nodes_filtered, directed = FALSE)
+
+ggraph(graph, layout = "fr") +
+  geom_edge_link(aes(width = weight), alpha = 0.3, colour = "grey70", show.legend = FALSE) +
+  geom_node_point(aes(size = size_log, color = type), alpha = 0.9, show.legend = c(size = FALSE, color = TRUE)) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3, show.legend = FALSE) +
+  scale_size(range = c(2, 10)) +
+  theme_void() +
+  labs(
+    title = "Cluster Interactions (FR layout, adjusted)",
+    caption = "Node size reflects cluster size (log scale)\nEdge thickness reflects number of interactions"
+  ) + 
+  labs(title = "Cluster Interactions (FR layout, adjusted)") +
+    theme(legend.position = "right")
+
+```

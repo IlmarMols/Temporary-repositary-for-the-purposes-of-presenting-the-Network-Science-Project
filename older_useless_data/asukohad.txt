@@ -1,0 +1,2 @@
+https://github.com/travisbrown/birdwatch/blob/main/data/aliases.csv
+
