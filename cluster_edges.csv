@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:53308d04166257d022460c6fe3065ccd8b80dd466497d0a75d41a29628b2518c
+size 2136
+=======
 source,target,weight
 R_0,N_0,311255
 R_0,N_1,10002
@@ -153,3 +158,4 @@ R_8,N_15,1402
 R_8,N_16,7910
 R_8,N_17,3
 R_8,N_18,5823
+>>>>>>> ea58b7484006b2ad7586d8690301e52fa87021ea

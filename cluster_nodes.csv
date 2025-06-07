@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+version https://git-lfs.github.com/spec/v1
+oid sha256:d5e5f837aa6e492ab6a1f60305191332ed94390b5290ab048d6079cd4812d235
+size 461
+=======
 id,size,type
 R_0,201470,rater
 R_3,1199,rater
@@ -29,3 +34,4 @@ N_17,473,note
 N_1,395,note
 N_14,371,note
 N_8,180,note
+>>>>>>> ea58b7484006b2ad7586d8690301e52fa87021ea
